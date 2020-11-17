@@ -13,46 +13,10 @@
     保护app防止csrf攻击
     校验的请求方式：'POST', 'PUT', 'PATCH', 'DELETE'
 """
-from flask import Flask, session
-from flask_sqlalchemy import SQLAlchemy
-from redis import StrictRedis
-from flask_session import Session
-from flask_wtf import CSRFProtect
-from config import Config
+from info import create_app
 
-app = Flask(__name__)
-
-
-# 加载配置类
-app.config.from_object(Config)
-
-# 创建SQLAlchemy对象，关联app
-db = SQLAlchemy(app)
-
-# 创建redis对象
-redis_store = StrictRedis(host=app.config.get('REDIS_HOST'),
-                          port=app.config.get('REDIS_PORT'),
-                          decode_responses=True)
-
-# 创建Session对象，读取app中的session配置
-Session(app)
-
-# 使用CSRFProtect保护app
-CSRFProtect(app)
-
-
-@app.route('/', methods=["POST", "GET"])
-def hello():
-
-    # 测试redis存取数据
-    redis_store.set('name', '老王')
-    print(redis_store.get('name'))
-
-    # 测试session存取
-    session['name'] = '张三'
-    print(session.get('name'))
-
-    return "hello"
+# 调用方法，获取app
+app = create_app('develop')
 
 
 if __name__ == "__main__":

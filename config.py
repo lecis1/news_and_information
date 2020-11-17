@@ -23,8 +23,7 @@ class Config(object):
 
     # session配置信息
     SESSION_TYPE = 'redis'  # 设置session存储类型
-    SESSION_REDIS = StrictRedis(host=REDIS_HOST, port=REDIS_PORT,
-                                decode_responses=True)  # 指定session存储的redis服务器
+    SESSION_REDIS = StrictRedis(host=REDIS_HOST, port=REDIS_PORT)  # 指定session存储的redis服务器
     SESSION_USE_SIGNER = True  # 设置session签名存储
     PERMANENT_SESSION_LIFETIME = timedelta(days=2)  # 设置session的有效期2天
 
