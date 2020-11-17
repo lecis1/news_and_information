@@ -13,40 +13,17 @@
     保护app防止csrf攻击
     校验的请求方式：'POST', 'PUT', 'PATCH', 'DELETE'
 """
-from datetime import timedelta
-
 from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
 from flask_session import Session
 from flask_wtf import CSRFProtect
+from config import Config
 
 app = Flask(__name__)
 
 
-# 设置配置信息
-class Config(object):
-    # 调式信息
-    DEBUG = True
-
-    SECRET_KEY = 'hard to guess!'
-
-    # 配置数据库信息
-    SQLALCHEMY_DATABASE_URI = 'mysql://root:li990407@localhost:3306/project'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-    # redis配置信息
-    REDIS_HOST = '127.0.0.1'
-    REDIS_PORT = 6379
-
-    # session配置信息
-    SESSION_TYPE = 'redis'  # 设置session存储类型
-    SESSION_REDIS = StrictRedis(host=REDIS_HOST, port=REDIS_PORT,
-                                decode_responses=True)  # 指定session存储的redis服务器
-    SESSION_USE_SIGNER = True  # 设置session签名存储
-    PERMANENT_SESSION_LIFETIME = timedelta(days=2)  # 设置session的有效期2天
-
-
+# 加载配置类
 app.config.from_object(Config)
 
 # 创建SQLAlchemy对象，关联app
