@@ -13,11 +13,21 @@
     保护app防止csrf攻击
     校验的请求方式：'POST', 'PUT', 'PATCH', 'DELETE'
 """
-from info import create_app
+from info import create_app, db, models  # 导入models是为了让整个应用程序知道有models的存在
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 
 # 调用方法，获取app
 app = create_app('develop')
 
+# 创建manager对象管理app
+manager = Manager(app)
+
+# 使用migrate关联app， db
+Migrate(app, db)
+# 给manager添加一条操作命令
+manager.add_command('db', MigrateCommand)
 
 if __name__ == "__main__":
-    app.run()
+    # app.run()
+    manager.run()
