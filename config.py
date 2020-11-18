@@ -2,6 +2,8 @@
 # @Author:lecis
 # @Time:2020/11/17 22:43
 # @ Software:PyCharm
+import logging
+
 from redis import StrictRedis
 from datetime import timedelta
 
@@ -27,6 +29,9 @@ class Config(object):
     SESSION_USE_SIGNER = True  # 设置session签名存储
     PERMANENT_SESSION_LIFETIME = timedelta(days=2)  # 设置session的有效期2天
 
+    # 设置默认日志级别
+    LEVEL_NAME = logging.DEBUG
+
 
 class DevelopConfig(Config):
     """开发环境配置信息"""
@@ -36,6 +41,7 @@ class DevelopConfig(Config):
 class ProductConfig(Config):
     """生产环境配置信息（线上）"""
     DEBUG = False
+    LEVEL_NAME = logging.ERROR
 
 
 class TestConfig(Config):
