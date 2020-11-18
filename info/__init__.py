@@ -9,7 +9,8 @@ from flask_session import Session
 from flask_wtf import CSRFProtect
 from config import config_dict
 
-from info.modules.index import index_blue
+
+redis_store = None
 
 
 # 定义工厂方法
@@ -26,6 +27,7 @@ def create_app(config_name):
     db = SQLAlchemy(app)
 
     # 创建redis对象
+    global redis_store  # 将局部变量声明为一个全局的
     redis_store = StrictRedis(host=config.REDIS_HOST,
                               port=config.REDIS_PORT,
                               decode_responses=True)
@@ -36,6 +38,7 @@ def create_app(config_name):
     # 使用CSRFProtect保护app
     CSRFProtect(app)
 
+    from info.modules.index import index_blue
     # 将index_blue蓝图注册到app
     app.register_blueprint(index_blue)
 
