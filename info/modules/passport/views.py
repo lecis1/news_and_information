@@ -7,7 +7,7 @@ import re
 import random
 from ...libs.yuntongxun.sms import CCP
 
-from flask import request, current_app, make_response, jsonify
+from flask import request, current_app, make_response, jsonify, session
 
 from . import passport_blue
 
@@ -59,8 +59,10 @@ def image_code():
 @passport_blue.route('/sms_code', methods=['POST'])
 def sms_code():
     # 1.获取参数
-    json_data = request.data
-    dict_data = json.loads(json_data)
+    # json_data = request.data
+    # dict_data = json.loads(json_data)
+
+    dict_data = request.json  # dict_data = request.get_json()
     mobile = dict_data.get('mobile')
     image_code = dict_data.get('image_code')
     image_code_id = dict_data.get('image_code_id')
@@ -121,8 +123,13 @@ def sms_code():
 @passport_blue.route('/register', methods=['POST'])
 def register():
     # 1.获取参数
-    json_data = request.data
-    dict_data = json.loads(json_data)
+    # dict_data = request.get_json()
+
+    # 可以替换掉下面两句话
+    dict_data = request.json  # 等价于上面一句话
+
+    # json_data = request.data
+    # dict_data = json.loads(json_data)
     mobile = dict_data.get('mobile')
     sms_code = dict_data.get('sms_code')
     password = dict_data.get('password')
@@ -157,7 +164,8 @@ def register():
 
     # 8.设置用户对象的属性
     user.nick_name = mobile
-    user.password_hash = password
+    # user.password_hash = password  # 密码的加密处理
+    user.password = password
     user.mobile = mobile
     user.signature = "该用户很懒，什么都没写"
 
@@ -171,3 +179,41 @@ def register():
 
     # 10.返回响应
     return jsonify(errno=RET.OK, errmsg="注册成功")
+
+
+# 1.登录用户
+# 2.请求路径：/passport/login
+# 3.请求方式：POST
+# 4.请求参数：mobile, password
+# 5.返回值：errno, errmsg"
+@passport_blue.route('/login', methods=['POST'])
+def login():
+
+    # 1.参数获取
+    mobile = request.json.get('mobile')
+    password = request.json.get('password')
+
+    # 2.校验参数，为空校验
+    if not all([mobile, password]):
+        return jsonify(errno=RET.PARAMERR, errmsg='参数不全')
+
+    # 3.通过手机号到数据库查询用户对象
+    try:
+        user = User.query.filter(User.mobile == mobile).first()
+    except Exception as e:
+        current_app.logger(e)
+        return jsonify(errno=RET.DBERR, errmsg='获取用户失败')
+
+    # 4.判断用户是否存在
+    if not user:
+        return jsonify(errno=RET.NODATA, errmsg='该用户不存在')
+
+    # 5.校验密码是否正确
+    if not user.check_password(password):
+        return jsonify(errno=RET.DATAERR, errmsg="密码填写错误")
+
+    # 6.将用户的登录信息保存在session中
+    session["user_id"] = user.id
+
+    # 7.返回响应
+    return jsonify(errno=RET.OK, errmsg="登录成功")

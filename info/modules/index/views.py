@@ -5,7 +5,9 @@
 from . import index_blue
 from info import redis_store
 import logging
-from flask import current_app, render_template
+from flask import current_app, render_template, session
+
+from ...models import User
 
 
 @index_blue.route('/', methods=['POST', 'GET'])
@@ -34,7 +36,24 @@ def hello():
     # current_app.logger.warning('输出警告信息2')
     # current_app.logger.error('输出错误信息2')
 
-    return render_template('news/index.html')
+
+    # 1.获取用户的登录信息
+    user_id = session.get('user_id')
+
+    # 2.通过user_id取出用户对象
+    user = None
+    if user_id:
+        try:
+            user = User.query.filter(User.id == user_id).first()
+        except Exception as e:
+            current_app.logger(e)
+    # 3.拼接用户数据，渲染页面
+
+    data = {
+        "user_info": user.to_dict() if user else "",
+    }
+
+    return render_template('news/index.html', data=data)
 
 
 # 处理网站logo

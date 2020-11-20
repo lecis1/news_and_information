@@ -124,7 +124,7 @@ $(function(){
             "mobile":mobile,
             "password":password
         }
-        /*
+
         $.ajax({
             url:'/passport/login',
             type:'post',
@@ -141,7 +141,6 @@ $(function(){
 
             }
         })
-        */
     })
 
 
@@ -182,7 +181,7 @@ $(function(){
             "sms_code":smscode,
             "password":password
         }
-        /*
+
         $.ajax({
             url:'/passport/register',
             type:'post',
@@ -199,7 +198,7 @@ $(function(){
                 }
             }
         })
-        */
+
     })
 })
 
