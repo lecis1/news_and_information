@@ -57,6 +57,10 @@ def create_app(config_name):
     from info.modules.passport import passport_blue
     app.register_blueprint(passport_blue)
 
+    # 将news_blue蓝图注册到app
+    from info.modules.news import news_blue
+    app.register_blueprint(news_blue)
+
     # 将自定义过滤器添加到系统的过滤器中
     # 参数1：:函数名 ，参数2：过滤器名
     app.add_template_filter(hot_news_filter, "my_filter")
@@ -71,7 +75,7 @@ def create_app(config_name):
         # 返回响应
         return resp
 
-    # print(app.url_map)
+    print(app.url_map)
 
     return app
 

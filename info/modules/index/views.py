@@ -5,7 +5,7 @@
 from . import index_blue
 from info import redis_store
 import logging
-from flask import current_app, render_template, session, jsonify
+from flask import current_app, render_template, session, jsonify, request
 
 from ...models import User, News, Category
 from ...utils.response_code import RET
@@ -88,3 +88,62 @@ def show_index():
 @index_blue.route('/favicon.ico')
 def get_web_logo():
     return current_app.send_static_file('news/favicon.ico')
+
+
+@index_blue.route('/newslist', methods=["GET"])
+def newslist():
+    # 1.获取参数
+    cid = request.args.get('cid', '1')
+    page = request.args.get('page', '1')
+    per_page = request.args.get('per_page', '10')
+
+    # 2.参数类型转化
+    try:
+        page = int(page)
+        per_page = int(per_page)
+    except Exception as e:
+        page = 1
+        per_page = 10
+
+    # 3.分页查询
+    try:
+        # 判断新闻的分类是否为1
+        """
+        if cid == "1":
+            paginate = News.query.order_by(News.create_time.desc()).paginate(page, per_page, False)
+        else:
+            paginate = News.query.filter(News.category_id == cid).order_by(News.create_time.desc()).paginate(page, per_page, False)
+        """
+
+        """
+        # 改装，判断新闻的分类是否为1
+        filters = ""
+        if cid != "1":
+            filters = (News.category_id == cid)
+        paginate = News.query.filter(filters).order_by(
+            News.create_time.desc()).paginate(page, per_page, False)
+        """
+
+        # 再改装，判断新闻的分类是否为1
+        filters = []
+        if cid != "1":
+            filters.append(News.category_id == cid)
+        paginate = News.query.filter(*filters).order_by(
+            News.create_time.desc()).paginate(page, per_page, False)
+
+    except Exception as e:
+        current_app.logger(e)
+        return jsonify(errno=RET.DBERR, errmsg="获取新闻失败")
+
+    # 4.获取分页对象中的属性，总页数，当前页，当前页的对象列表
+    totalPage = paginate.pages
+    currentPage = paginate.page
+    items = paginate.items
+
+    # 5.将对象列表转成字典列表
+    news_list = []
+    for new in items:
+        news_list.append(new.to_dict())
+
+    # 6.携带数据，返回响应
+    return jsonify(errno=RET.OK, errmsg="获取新闻成功", totalPage=totalPage, newsList=news_list)
