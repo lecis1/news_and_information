@@ -204,7 +204,6 @@ $(function(){
 
 //退出登陆
 function logout() {
-    /*
     $.ajax({
         url:'/passport/logout',
         type:'post',
@@ -213,7 +212,6 @@ function logout() {
             window.location.reload()
         }
     })
-    */
 }
 
 

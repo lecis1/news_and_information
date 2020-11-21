@@ -5,6 +5,8 @@
 import json
 import re
 import random
+from datetime import datetime
+
 from ...libs.yuntongxun.sms import CCP
 
 from flask import request, current_app, make_response, jsonify, session
@@ -215,5 +217,26 @@ def login():
     # 6.将用户的登录信息保存在session中
     session["user_id"] = user.id
 
+    # 6.1记录用户最后一次登录时间
+    user.last_login = datetime.now()
+
+    # try:
+    #     db.session.commit()
+    # except Exception as e:
+    #     current_app.logger(e)
+
     # 7.返回响应
     return jsonify(errno=RET.OK, errmsg="登录成功")
+
+
+# 1.退出登录
+# 2.请求路径：/passport/logout
+# 3.请求方式：POST
+# 4.请求参数：无
+# 5.返回值：errno, errmsg"
+@passport_blue.route('/logout', methods=['POST'])
+def logout():
+    # 1.清除session信息
+    session.pop('user_id', None)
+    # 2.返回响应
+    return jsonify(errno=RET.OK, errmsg="退出成功")

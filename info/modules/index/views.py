@@ -5,13 +5,14 @@
 from . import index_blue
 from info import redis_store
 import logging
-from flask import current_app, render_template, session
+from flask import current_app, render_template, session, jsonify
 
-from ...models import User
+from ...models import User, News, Category
+from ...utils.response_code import RET
 
 
 @index_blue.route('/', methods=['POST', 'GET'])
-def hello():
+def show_index():
 
     # 测试redis存取数据
     # redis_store.set('name', '老王')
@@ -47,10 +48,37 @@ def hello():
             user = User.query.filter(User.id == user_id).first()
         except Exception as e:
             current_app.logger(e)
+
+    # 3 查询热门新闻，根据点击量查询前十条新闻
+    try:
+        news = News.query.order_by(News.clicks.desc()).limit(10).all()
+    except Exception as e:
+        current_app.logger(e)
+        return jsonify(errno=RET.DBERR, errmsg="获取新闻失败")
+
+    # 4将新闻的对象列表转为字典列表
+    new_list = []
+    for new in news:
+        new_list.append(new.to_dict())
+
+    # 5查询所有的分类数据
+    try:
+        categories = Category.query.all()
+    except Exception as e:
+        current_app.logger(e)
+        return jsonify(errno=RET.DBERR, errmsg=" 获取分类失败")
+
+    # 6将分类的数据列表转成字典列表
+    category_list = []
+    for category in categories:
+        category_list.append(category.to_dict())
+
     # 3.拼接用户数据，渲染页面
 
     data = {
         "user_info": user.to_dict() if user else "",
+        "news": new_list,
+        "category_list": category_list,
     }
 
     return render_template('news/index.html', data=data)
