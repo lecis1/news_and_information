@@ -5,13 +5,15 @@
 from . import index_blue
 from info import redis_store
 import logging
-from flask import current_app, render_template, session, jsonify, request
+from flask import current_app, render_template, session, jsonify, request, g
 
 from ...models import User, News, Category
+from ...utils.comments import user_login_data
 from ...utils.response_code import RET
 
 
 @index_blue.route('/', methods=['POST', 'GET'])
+@user_login_data
 def show_index():
 
     # 测试redis存取数据
@@ -37,7 +39,6 @@ def show_index():
     # current_app.logger.warning('输出警告信息2')
     # current_app.logger.error('输出错误信息2')
 
-
     # 1.获取用户的登录信息
     user_id = session.get('user_id')
 
@@ -47,7 +48,7 @@ def show_index():
         try:
             user = User.query.filter(User.id == user_id).first()
         except Exception as e:
-            current_app.logger(e)
+            current_app.logger.error(e)
 
     # 3 查询热门新闻，根据点击量查询前十条新闻
     try:
@@ -76,7 +77,7 @@ def show_index():
     # 3.拼接用户数据，渲染页面
 
     data = {
-        "user_info": user.to_dict() if user else "",
+        "user_info": g.user.to_dict() if g.user else "",
         "news": new_list,
         "category_list": category_list,
     }
@@ -86,6 +87,7 @@ def show_index():
 
 # 处理网站logo
 @index_blue.route('/favicon.ico')
+@user_login_data
 def get_web_logo():
     return current_app.send_static_file('news/favicon.ico')
 
