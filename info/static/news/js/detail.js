@@ -166,7 +166,7 @@ $(function(){
         // 点赞处理
         if(sHandler.indexOf('comment_up')>=0)
         {
-            /*
+
             var $this = $(this);
             var action = "add"
             if(sHandler.indexOf('has_comment_up')>=0)
@@ -225,7 +225,7 @@ $(function(){
                     }
                 }
             })
-            */
+
         }
 
         // 评论回复

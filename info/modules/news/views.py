@@ -88,10 +88,11 @@ def news_detail(news_id):
         # 将评论对象转字典
         comm_dict = comment.to_dict()
 
+        comm_dict['is_like'] = False
         # 判断用户是否有对评论点过赞
         if g.user and comment.id in mylike_comment_ids:
             # 添加key-value记录点赞
-            comm_dict['is_like'] = False
+            comm_dict['is_like'] = True
 
         comments_list.append(comm_dict)
 
@@ -212,7 +213,8 @@ def news_comment():
 #         2.用户需要登录g.user
 #         3.操作类型action
 # 返回值：errno,errmsg
-@app.route('/comment_like', methods=['POST'])
+@news_blue.route('/comment_like', methods=['POST'])
+@user_login_data
 def comment_like():
     # 1判断用户是否登录
     if not g.user:
@@ -269,8 +271,8 @@ def comment_like():
                 # 将该评论的点赞数量-1
                 if comment.like_count > 0:
                     comment.like_count -= 1
+                    db.session.commit()
 
-                db.session.commit()
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="操作失败")

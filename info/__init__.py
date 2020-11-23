@@ -61,6 +61,10 @@ def create_app(config_name):
     from info.modules.news import news_blue
     app.register_blueprint(news_blue)
 
+    # 将profile_blue蓝图注册到app
+    from info.modules.profile import profile_blue
+    app.register_blueprint(profile_blue)
+
     # 将自定义过滤器添加到系统的过滤器中
     # 参数1：:函数名 ，参数2：过滤器名
     app.add_template_filter(hot_news_filter, "my_filter")
